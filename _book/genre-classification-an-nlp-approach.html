@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval</title>
+  <meta name="description" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  
+  
+  
+
+<meta name="author" content="Josiah Parry" />
+
+
+<meta name="date" content="2019-08-25" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="genre-classification-audio-feature-approach.html">
+<link rel="next" href="genre-classification-ensemble-approach.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy MIR</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#setting-context---billboard-top-charts"><i class="fa fa-check"></i><b>1.1</b> Setting Context - Billboard top charts</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="audio-features-spotify.html"><a href="audio-features-spotify.html"><i class="fa fa-check"></i><b>2</b> Audio features — Spotify</a></li>
+<li class="chapter" data-level="3" data-path="genre-classification-audio-feature-approach.html"><a href="genre-classification-audio-feature-approach.html"><i class="fa fa-check"></i><b>3</b> Genre Classification — Audio feature approach</a></li>
+<li class="chapter" data-level="4" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html"><i class="fa fa-check"></i><b>4</b> Genre Classification — An NLP approach</a><ul>
+<li class="chapter" data-level="4.1" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#retrieving-song-lyrics"><i class="fa fa-check"></i><b>4.1</b> Retrieving song lyrics</a></li>
+<li class="chapter" data-level="4.2" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#lyric-preprocessing"><i class="fa fa-check"></i><b>4.2</b> Lyric Preprocessing</a></li>
+<li class="chapter" data-level="4.3" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#topic-modeling"><i class="fa fa-check"></i><b>4.3</b> Topic Modeling</a></li>
+<li class="chapter" data-level="4.4" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#genre-classification-of-topics"><i class="fa fa-check"></i><b>4.4</b> Genre Classification of Topics</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="genre-classification-ensemble-approach.html"><a href="genre-classification-ensemble-approach.html"><i class="fa fa-check"></i><b>5</b> Genre Classification — Ensemble Approach</a><ul>
+<li class="chapter" data-level="5.1" data-path="genre-classification-ensemble-approach.html"><a href="genre-classification-ensemble-approach.html#case-study"><i class="fa fa-check"></i><b>5.1</b> Case Study</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/josiahparry/genre-classification" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">A tidy approach to music information retrieval</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="genre-classification-an-nlp-approach" class="section level1">
+<h1><span class="header-section-number">Chapter 4</span> Genre Classification — An NLP approach</h1>
+<p>There may be marked differences between the musical features of country and rock songs, but to utilize audio features by themself would ignore another important aspect of music: the lyrics. Lyrics contain information that the audio features may not. Lyrics may betray the feeling that the sound may portray. We can use natural language processing (NLP) techniques on the song lyrics to quantify song lyrics. This will enable us to identify the sentiment of a song based on it’s lyrics alongside of the mood that is set by its tone. In addition we are able to identify clusters of related words, as we will later see. All of these techniques can be used to distinguish songs, artists, and genres from one and another.</p>
+<p>The following will outline a process for creating clusters of related words and using them as a basis for a lyric based genre classification model.</p>
+<p>To do this we will use three additional packages:</p>
+<ul>
+<li><a href="https://github.com/josiahparry/genius"><code>genius</code></a>: acquiring song lyrics</li>
+<li><a href="http://github.com/juliasilge/tidytext"><code>tidytext</code></a>: text mining with tidy tools</li>
+<li><code>topicmodels</code>: package containing R implementations of topic models</li>
+</ul>
+<p>In order to best understand the following code I recommend reading <a href="https://www.tidytextmining.com/">Tidy Text Mining</a> by Julia Silge and David Robinson.</p>
+<p>From here we frame the issue of genre classification as one of language rather than strict musical features. In creating this model we are attempting to see if there are linguistic differences between the lyrics of rock and country songs that can be captured, quantified, and classified using NLP and predictive modeling.</p>
+<p>The steps that we will take to create this classification model are roughly as follows:</p>
+<ul>
+<li>Retrieve song lyrics</li>
+<li>Tokenization</li>
+<li>Removal of stop words</li>
+<li>Word stemming</li>
+<li>Create a document term matrix</li>
+<li>Create an LDA topic model</li>
+<li>Calculate LDA topic probabilities</li>
+<li>Create a model using class probabilities as features</li>
+</ul>
+<p>Latent Dirichlet Allocation (LDA) is an unsupervised classification model that uses term-frequency (tf) of a document as input foollowing a <a href="https://medium.com/greyatom/an-introduction-to-bag-of-words-in-nlp-ac967d43b428">bag of words approach</a>. To create this LDA model, We first need to calculate the term-frequency of our documents (songs). And to do that, we need to process the song lyrics by tokenizing, removing stop-words, and stemming.</p>
+<p>But we can’t get ahead of ourselves. We need the lyrics first.</p>
+<div id="retrieving-song-lyrics" class="section level2">
+<h2><span class="header-section-number">4.1</span> Retrieving song lyrics</h2>
+<p>We will use <code>add_genius()</code> with the charts table to get the song lyrics for each song. Below we are specifying the columns that contain the name of the artist and tracks respectively. The <code>type</code> argument tells genius whether it will be fetching lyrics for a song or an album. Here we specify we are interested in <code>&quot;lyrics&quot;</code>.</p>
+<p>This is can be rather time consuming. So maybe go for a walk around the block. Make some tea. Have a moment to yourself.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(genius)
+charts_lyrics &lt;-<span class="st"> </span><span class="kw">add_genius</span>(charts, artist, title, <span class="dt">type =</span> <span class="st">&quot;lyrics&quot;</span>)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   rank = col_double(),
+##   year = col_double(),
+##   chart = col_character(),
+##   artist = col_character(),
+##   featured_artist = col_character(),
+##   title = col_character(),
+##   track_title = col_character(),
+##   line = col_double(),
+##   lyric = col_character()
+## )</code></pre>
+<p>Now that we have charts and their lyric, let’s see if there were any songs that were missed by <code>add_genius()</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anti_join</span>(charts, charts_lyrics <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>(year, artist, title)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">distinct</span>(artist, title)</code></pre>
+<pre><code>## Joining, by = c(&quot;year&quot;, &quot;artist&quot;, &quot;title&quot;)</code></pre>
+<pre><code>## # A tibble: 16 x 2
+##    artist                                           title                  
+##    &lt;chr&gt;                                            &lt;chr&gt;                  
+##  1 Florida Georgia Line                             H.O.L.Y.               
+##  2 Dan + Shay                                       From The Ground Up     
+##  3 Chris Young Duet With Cassadee Pope              Think Of You           
+##  4 Dan + Shay                                       Nothin&#39; Like You       
+##  5 Dan + Shay                                       How Not To             
+##  6 Dan + Shay                                       Tequila                
+##  7 Dan + Shay                                       Speechless             
+##  8 David Lee Murphy &amp; Kenny Chesney                 Everything&#39;s Gonna Be …
+##  9 Brantley Gilbert                                 Ones That Like Me      
+## 10 Lil Wayne, Wiz Khalifa &amp; Imagine Dragons With L… Sucker For Pain        
+## 11 Nathaniel Rateliff &amp; The Night Sweats            S.O.B.                 
+## 12 Coldplay                                         Up&amp;Up                  
+## 13 The Dirty Heads                                  Vacation               
+## 14 Florence + The Machine                           Hunger                 
+## 15 Sir Sly                                          &amp;Run                   
+## 16 Imagine Dragons + Khalid                         Thunder/Young Dumb &amp; B…</code></pre>
+<p>There looks to be some inconsistencies in naming. We can either manually fix these, or omit them. For this case, I will omit them (as fixing them would invariable mean making a GitHub issue; if you want to tackle it, please do!).</p>
+</div>
+<div id="lyric-preprocessing" class="section level2">
+<h2><span class="header-section-number">4.2</span> Lyric Preprocessing</h2>
+<p>To use song lyrics in a model, we need to quantify them in some manner. NLP allows us to add quantitative structure to inherently unstructured text data. We will follow the tidy text mining approach outlined in <a href="https://www.tidytextmining.com/">Tidy Text Mining in R</a>.</p>
+<p>We will impose structure on song lyrics by tokenizing words and estimating document topics (groups of related words).</p>
+<p>The code below takes the <code>charts_lyrics</code> data frame and deduplicates the songs, then splits thee <code>line</code> column into unigrams. Next, <a href="https://www.tidytextmining.com/tidytext.html#tidyausten">stop words</a> are removed. Finally, unigrams are stemmed using <code>wordStem()</code> from the <code>SnowballC</code> package (for more on word stemming visit <a href="https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html">here</a>).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidytext)
+
+<span class="co"># create unigrams</span>
+lyric_unigrams &lt;-<span class="st"> </span>charts_lyrics <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="co"># if a song appears more than once, keep only one observation</span>
+<span class="st">  </span><span class="kw">distinct</span>(artist, title, line, <span class="dt">.keep_all =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="co"># create unigrams</span>
+<span class="st">  </span><span class="kw">unnest_tokens</span>(word, lyric) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="co"># remove stop words</span>
+<span class="st">  </span><span class="kw">anti_join</span>(<span class="kw">get_stopwords</span>()) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="co"># stem each word</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">word =</span> SnowballC<span class="op">::</span><span class="kw">wordStem</span>(word)) </code></pre>
+<pre><code>## Joining, by = &quot;word&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">lyric_unigrams </code></pre>
+<pre><code>## # A tibble: 79,885 x 9
+##     rank  year chart  artist  featured_artist title track_title  line word 
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;
+##  1     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     1 babi 
+##  2     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     1 last 
+##  3     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     1 night
+##  4     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     1 hand 
+##  5     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     2 on   
+##  6     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     2 best 
+##  7     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     2 night
+##  8     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     2 doubt
+##  9     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     3 bottl
+## 10     2  2016 Hot C… Thomas… &lt;NA&gt;            Die … Die a Happ…     3 wine 
+## # … with 79,875 more rows</code></pre>
+<p>We’re almost there. We want to create a LDA model, but LDA models are based on term-frequency. At this moment, we only have terms. Now we need to count the number of times each word occurs in each document (song).</p>
+<p>To accomplish this we will <code>count()</code> by each unique combination of song and word. Below we create a common identifier as a combination of the artist name and title, then count the number of times each word occurs in the song.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># create word counts and an id column to simplify counting for me</span>
+lyric_counts &lt;-<span class="st"> </span>lyric_unigrams <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id =</span> glue<span class="op">::</span><span class="kw">glue</span>(<span class="st">&quot;{artist}....{title}&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>(id, word, <span class="dt">sort =</span> <span class="ot">TRUE</span>)
+
+lyric_counts</code></pre>
+<pre><code>## # A tibble: 33,662 x 3
+##    id                                         word        n
+##    &lt;glue&gt;                                     &lt;chr&gt;   &lt;int&gt;
+##  1 Eric Church....Desperate Man               boo       147
+##  2 Imagine Dragons....Thunder                 thunder   113
+##  3 Dierks Bentley....Woman, Amen              oh        103
+##  4 The Head And The Heart....All We Ever Knew la        103
+##  5 Vance Joy....Saturday Sun                  ba         99
+##  6 Eric Church....Mr. Misunderstood           na         96
+##  7 Fall Out Boy....Hold Me Tight Or Don&#39;t     na         95
+##  8 alt-J....In Cold Blood                     la         81
+##  9 CHVRCHES....Get Out                        get        74
+## 10 twenty one pilots....Message Man           eh         64
+## # … with 33,652 more rows</code></pre>
+<p>Now these counts can be cast into a <code>DocumentTermMatrix</code> using <code>tidytext::cast_dtm()</code>. A document term matrix takes the structure of one document per row and one column per term. This is important when we are thinking about the models that we will be creating.</p>
+<p>For our model, we want to know the genre of each song. This means there needs to be only one row per song rather than a row per song and word pairing as is the case with our tidy <code>lyric_counts</code> object.</p>
+<pre class="sourceCode r"><code class="sourceCode r">lyric_dtm &lt;-<span class="st"> </span>lyric_counts <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">cast_dtm</span>(id, word, n)
+
+lyric_dtm</code></pre>
+<pre><code>## &lt;&lt;DocumentTermMatrix (documents: 513, terms: 4638)&gt;&gt;
+## Non-/sparse entries: 33662/2345632
+## Sparsity           : 99%
+## Maximal term length: NA
+## Weighting          : term frequency (tf)</code></pre>
+<p>Notice how the term weighting is done with term-frequency (tf)? This is ideal as LDA requires term-frequency.</p>
+</div>
+<div id="topic-modeling" class="section level2">
+<h2><span class="header-section-number">4.3</span> Topic Modeling</h2>
+<p>Now that we have our <code>DocumentTermMatrix</code> we can create our LDA model. We will use the <code>LDA()</code> function from <code>topicmodels</code> to do this. LDA will createw as many topics as specified. Much like a KNN model, we can specify <code>k</code> clusters. In this case we will use 5.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(topicmodels)
+
+lda_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="kw">LDA</span>(lyric_dtm, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">seed =</span> <span class="dv">0</span>))
+
+lda_<span class="dv">5</span></code></pre>
+<pre><code>## A LDA_VEM topic model with 5 topics.</code></pre>
+<p>Now that the model has been fit, we can use it to calculate the posterior probabilities for each document’s membership to the k classes. <code>posterior()</code> creates a <code>list</code> object with two matrices. The first matrix contains the <code>terms</code> that were used to create the model. The second matrix contains the <code>topics</code> probability of each document. We will extract the topic probabilities and coerce the matrix into a <code>tibble</code> so we can join it back on to the original charts table.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># calculate the posterior probabilities for each document&#39;s classificaiton</span>
+lda_inf &lt;-<span class="st"> </span><span class="kw">posterior</span>(lda_<span class="dv">5</span>, lyric_dtm)
+
+<span class="co"># extract document class probabilities </span>
+chart_lda &lt;-<span class="st"> </span>lda_inf[[<span class="dv">2</span>]] <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>(<span class="dt">rownames =</span> <span class="st">&quot;id&quot;</span>)
+
+chart_lda</code></pre>
+<pre><code>## # A tibble: 513 x 6
+##    id                                 `1`      `2`      `3`     `4`     `5`
+##    &lt;chr&gt;                            &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Eric Church....Desperate Man  0.999    0.000187 0.000187 1.87e-4 1.87e-4
+##  2 Imagine Dragons....Thunder    0.000200 0.000200 0.999    2.00e-4 2.00e-4
+##  3 Dierks Bentley....Woman, Amen 0.000208 0.999    0.000208 2.08e-4 2.08e-4
+##  4 The Head And The Heart....Al… 0.999    0.000288 0.000288 2.88e-4 2.88e-4
+##  5 Vance Joy....Saturday Sun     0.000189 0.999    0.000189 1.89e-4 1.89e-4
+##  6 Eric Church....Mr. Misunders… 0.999    0.000155 0.000155 1.55e-4 1.55e-4
+##  7 Fall Out Boy....Hold Me Tigh… 0.999    0.000200 0.000200 2.00e-4 2.00e-4
+##  8 alt-J....In Cold Blood        0.999    0.000241 0.000241 2.41e-4 2.41e-4
+##  9 CHVRCHES....Get Out           0.999    0.000312 0.000312 3.12e-4 3.12e-4
+## 10 twenty one pilots....Message… 0.999    0.000200 0.000200 2.00e-4 2.00e-4
+## # … with 503 more rows</code></pre>
+<p>To join back onto the original charts data we need to recreate the <code>id</code> column in the <code>charts</code> tibble. We then join only the unique songs to avoid any duplication and then clean the column headers.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># join back on to charts to get the genre </span>
+chart_topics &lt;-<span class="st"> </span>charts <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id =</span> glue<span class="op">::</span><span class="kw">glue</span>(<span class="st">&quot;{artist}....{title}&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">distinct</span>(chart, id) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">right_join</span>(chart_lda) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>janitor<span class="op">::</span><span class="kw">clean_names</span>()</code></pre>
+<pre><code>## Joining, by = &quot;id&quot;</code></pre>
+<pre><code>## Warning: Column `id` has different attributes on LHS and RHS of join</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(chart_topics)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   chart      id                          x1      x2      x3      x4      x5
+##   &lt;chr&gt;      &lt;glue&gt;                   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Hot Count… Eric Church....Despe… 0.999    1.87e-4 1.87e-4 1.87e-4 1.87e-4
+## 2 Rock Songs Imagine Dragons....T… 0.000200 2.00e-4 9.99e-1 2.00e-4 2.00e-4
+## 3 Hot Count… Dierks Bentley....Wo… 0.000208 9.99e-1 2.08e-4 2.08e-4 2.08e-4
+## 4 Rock Songs The Head And The Hea… 0.999    2.88e-4 2.88e-4 2.88e-4 2.88e-4
+## 5 Rock Songs Vance Joy....Saturda… 0.000189 9.99e-1 1.89e-4 1.89e-4 1.89e-4
+## 6 Hot Count… Eric Church....Mr. M… 0.999    1.55e-4 1.55e-4 1.55e-4 1.55e-4</code></pre>
+<p>From here we now have a dataset that can be utilized for creating a genre classification model.</p>
+</div>
+<div id="genre-classification-of-topics" class="section level2">
+<h2><span class="header-section-number">4.4</span> Genre Classification of Topics</h2>
+<p>Below we follow the same steps as were done for song feature classfications. The only differences here are that we are specifying the formula of the recipe as <code>chart ~ x1 + x2 + x3 + x4 + x5</code>, and are using <code>randomForest</code> rather than <code>ranger</code> .</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------- pre-processing -------------------------------#</span>
+<span class="kw">set.seed</span>(<span class="dv">0</span>)
+init_split &lt;-<span class="st"> </span><span class="kw">initial_split</span>(chart_topics, <span class="dt">strata =</span> <span class="st">&quot;chart&quot;</span>)
+train_df &lt;-<span class="st"> </span><span class="kw">training</span>(init_split)
+test_df &lt;-<span class="st"> </span><span class="kw">testing</span>(init_split)
+
+<span class="co"># create recipe</span>
+chart_rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(chart <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span>x2 <span class="op">+</span><span class="st"> </span>x3 <span class="op">+</span><span class="st"> </span>x4 <span class="op">+</span><span class="st"> </span>x5, <span class="dt">data =</span> train_df) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">prep</span>()
+
+<span class="co"># bake the training and testing to have clean dfs</span>
+baked_train &lt;-<span class="st"> </span><span class="kw">bake</span>(chart_rec, train_df)
+baked_test &lt;-<span class="st"> </span><span class="kw">bake</span>(chart_rec, test_df)
+
+
+<span class="co">#--------------------------------- model fit ----------------------------------#</span>
+
+rf_fit &lt;-<span class="st"> </span><span class="kw">rand_forest</span>(<span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;randomForest&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">fit</span>(chart <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> baked_train)
+
+lyric_classifier &lt;-<span class="st"> </span>rf_fit
+
+<span class="co">#------------------------------ model evaluation ------------------------------#</span>
+rf_estimates &lt;-<span class="st"> </span><span class="kw">predict</span>(rf_fit, baked_test) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">bind_cols</span>(baked_test) <span class="op">%&gt;%</span>
+<span class="st">  </span>yardstick<span class="op">::</span><span class="kw">metrics</span>(<span class="dt">truth =</span> chart, <span class="dt">estimate =</span> .pred_class)
+
+rf_estimates</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy binary         0.567
+## 2 kap      binary         0.131</code></pre>
+<p>This is not a very good model. But what happens if we combine it with the audio feature model?</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="genre-classification-audio-feature-approach.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="genre-classification-ensemble-approach.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["mirr.pdf", "mirr.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

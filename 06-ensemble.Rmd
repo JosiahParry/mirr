@@ -1,0 +1,159 @@
+# Genre Classification — Ensemble Approach
+
+Here we create a [stacked model](http://blog.kaggle.com/2016/12/27/a-kagglers-guide-to-model-stacking-in-practice/) that will hopefully outperform both models. 
+
+In breif a stacked ensemble model takes the outputs of multiple models and feeds them to another layer of models. In this case we will use the prediction probabilities of the spotify audio feature model (79%) and the topic probability models (56% accuracy).
+
+Below join the features of the topic model to the spotifyr features. This data frame will be used to create a data frame of predictions. 
+
+
+```{r}
+chart_df <- chart_analysis %>% 
+  mutate(id = glue::glue("{artist}....{title}")) %>% 
+  inner_join(chart_topics) %>% 
+  distinct(chart, id, .keep_all = TRUE) %>% 
+  select(-c("duration_ms", "time_signature", "type", "mode",
+            "rank", "year", "artist", "featured_artist", "title")) %>%
+  mutate(chart = as.factor(chart),
+         key = as.factor(key))
+
+chart_df
+```
+
+Now we need to create training and testing data for this stacked model. We need to create predictions on the training set and predictions on the test set. These respective predictions will be our new training and testing sets. Feels clunky, I know.
+
+```{r}
+set.seed(1)
+init_split <- initial_split(chart_df, strata = "chart")
+train_df <- training(init_split)
+test_df <- testing(init_split)
+```
+
+We will now bind the predictions together into a new data frame. Note that it would be redundant to have probabilities for both country and rock so we select only country.
+
+```{r}
+train_preds <- bind_cols(predict(audio_classifier, train_df, type = "prob"),
+                         predict(lyric_classifier, train_df, type = "prob")) %>% 
+  select(contains("country")) %>% 
+  bind_cols(select(train_df, chart)) %>% 
+  janitor::clean_names()
+
+test_preds <- bind_cols(predict(audio_classifier, test_df, type = "prob"),
+                         predict(lyric_classifier, test_df, type = "prob")) %>% 
+  select(contains("country")) %>% 
+  bind_cols(select(test_df, chart)) %>% 
+  janitor::clean_names()
+```
+
+
+Now we can go ahead creating the ensemble model. 
+
+```{r}
+chart_rec <- recipe(chart ~ ., data = train_preds)  %>%
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) %>%
+  prep()
+
+
+baked_train <- bake(chart_rec, train_preds)
+baked_test <- bake(chart_rec, test_preds)
+```
+
+With our newly specified model we can try creating a few different classification models. 
+
+```{r}
+ranger_fit <- rand_forest(mode = "classification") %>%
+  set_engine("ranger") %>%
+  fit(chart ~ ., data = baked_train)
+
+rf_fit <- rand_forest(mode = "classification") %>%
+  set_engine("randomForest") %>%
+  fit(chart ~ ., data = baked_train)
+
+c50_fit <- decision_tree(mode = "classification") %>%
+  set_engine("C5.0") %>%
+  fit(chart ~ ., data = baked_train)
+```
+
+How did these models perform?
+
+```{r}
+rf_estimates <- predict(rf_fit, baked_test) %>%
+  bind_cols(baked_test) %>%
+  yardstick::metrics(truth = chart, estimate = .pred_class)
+
+ranger_estimates <- predict(ranger_fit, baked_test) %>%
+  bind_cols(baked_test) %>%
+  yardstick::metrics(truth = chart, estimate = .pred_class)
+
+c50_estimates <- predict(c50_fit, baked_test) %>%
+  bind_cols(baked_test) %>%
+  yardstick::metrics(truth = chart, estimate = .pred_class)
+
+bind_rows(
+  rf_estimates,
+  ranger_estimates,
+  c50_estimates
+) %>% 
+  filter(.metric == "accuracy") %>% 
+  mutate(model = c("rf", "ranger rf", "c50"))
+
+```
+
+It seems that our C5.0 Model performs the best with an accuracy of nearly 94%. That's a whole 15% better than our audio feature only model. But how does this perform on new data?
+
+## Case Study
+
+Americana is an extraordinary music genre. It is the confluence of folk, blues, country, and rock & roll. It is a uniquely American genre. We will use our new models to conduct a case study on the song _September Doves_ by _Lost Dog Street band_.
+
+Before we embark, familiarize yourself with the music. Listen to the song in its entirety. Think about how you would classify the song yourself. Are there differences between the lyrics and the audio? Perhaps listen to the song while we fetch and preprocess the song features and lyrics.
+
+```{r}
+# extract audio features
+doves_feats <- track_audio_features("Lost Dog Street Band", "September Doves")
+
+#------------------------------- lyric features -------------------------------#
+# retrieve and tokenize song lyrics 
+doves_tokens <- genius_lyrics("Lost Dog Street Band", "September Doves") %>% 
+  unnest_tokens(word, lyric) %>% 
+  mutate(word = SnowballC::wordStem(word))
+
+doves_dtm <- doves_tokens %>% 
+  count(track_title, word, sort = TRUE) %>% 
+  cast_dtm(track_title, word, n)
+
+
+# calculate topic probabilities
+doves_lda <- posterior(lda_5, doves_dtm) 
+
+# extract probs for modeling
+doves_lda_df <- doves_lda[[2]] %>% 
+  as_tibble() %>% 
+  janitor::clean_names()
+```
+
+
+Below we test the features with each model and bind the country probabilities together as we will need this for the stacked model.
+```{r}
+#----------------------------- model predictions ------------------------------#
+doves_stack_test <- bind_cols(
+  predict(audio_classifier, 
+          mutate(doves_feats, key = as.factor(key)),
+          type = "prob"),
+  predict(lyric_classifier, 
+          doves_lda_df, type = "prob")
+) %>% 
+  select(contains("country")) %>% 
+  janitor::clean_names()
+
+doves_stack_test
+```
+
+We can see that based on the audio features, our model doesn't classify September Doves as country, but it does based on the song lyrics.
+
+When we feed this into our ensemble model, what is the result?
+
+```{r}
+predict(c50_fit, doves_stack_test, type = "prob")
+```
+

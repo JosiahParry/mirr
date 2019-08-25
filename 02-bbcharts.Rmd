@@ -1,0 +1,51 @@
+## Setting Context - Billboard top charts
+
+Billboard magazine first started publishing music popularity charts in 1936. Billbaord studies multiple segments of listenership such as radio plays, online streams, digital and physical purchases. Through these efforts it has since established itself as an industry standard. Their charts have been used in numerous reseaarch projects aand analyses. Until recently, there is has been no one effective way of accessing this data in a format that is ready for analysis. 
+
+`bbcharts` was created to simplify the process of retrieving chart rankings. Through bbcharts, users now have access to 321 different charts that are hosted on Billboard.com. There a number of weekly and annual charts. bbcharts lists these in `bbcharts::chart_table` and `bbcharts::ye_chart_table` respectively (note that `ye` stands for "year end"). For an overview of the functionality visit the [GitHub repo](https://github.com/JosiahParry/bbcharts).
+
+
+For this case study we will be comparing rock and country songs. In order to create a model that classifies rock and country, we will need a dataset consisting of rock and country songs that can be used in our training. For this, we will look at the top rock and country songs of the past three years using the year end Billboard charts. 
+
+To create the dataset we will need to utilize the two charts: `"hot-country-songs"` and `"hot-rock-songs"`. One approach to do this would be to manually fetch these datasets using `year_end_bb("chart-name", year)` and binding them together. However, we have the power of the tidyverse at our fingertips and it would be a shame not to use it!
+
+The process that we will use will be to:
+
+1. Create a tibble of chart and year pairs
+1. Create a new list column with each pair's chart
+1. Unnest 
+
+
+To create a tibble with all unique pairs, we will use `tidyr::crossing()`. We will provide two vectors. One containing the name of the charts to be used and a second with the years of interest. These values will later be fed to `year_end_bb()`.
+
+```{r}
+library(tidyverse)
+
+chart_grid <- crossing(
+  chart = c("hot-country-songs", "hot-rock-songs"),
+  year = 2016:2018
+  )
+
+chart_grid
+```
+
+Next, we will create a new column called `chart_ranks` using a combination of `mutate()` and `map2()`. `mutate()` allows you to create and modify columns in a data frame. `map2()` allows you to iterate over two arguments simultaneously and pass these to another function.
+
+The below code will iterate over these pairs and store the output of `year_end_bb()` in the new column `chart_ranks`. As we only need what is contained in that `chart_ranks`, we will select it and `unnest()` the tibbles.
+
+```{r message=FALSE}
+library(bbcharts)
+
+charts <- chart_grid %>% 
+  mutate(chart_ranks = map2(.x = chart, .y = year, year_end_bb)) %>%
+  select(chart_ranks) %>% 
+  unnest()
+
+charts
+```
+
+Here we have a table of 600 tracks. This tibble will serve as the source of our data. We will need to collect the audio information (from Spotify) and the song lyrics in later steps. 
+
+Before continuing I recommend exploring the `charts` data frame and try and understand how it was created. Run the above code funtion by function and line by line. See what changes take place after each and every step. 
+
+

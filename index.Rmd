@@ -1,0 +1,49 @@
+--- 
+title: "Music Genre Classification"
+author: "Josiah Parry"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: ""
+---
+
+# Introduction
+
+When I listen to music there are two aspects that I focus on: the music and the lyrics. By “music” I am referring to the sonic features of a song: tonality, rhythm, tempo, key, the affect of the vocalist’s voice. In my practice of listening to music, lyrics are a separate entity than the vocals.  Lyrics are a way of listening to prose. Lyrics can carry a message—a rallying cry, a call to action, or an expression of one’s innermost sentiments. Take Shots by LMFAO for example:
+
+> Shots, shots, shots, shots, shots, shots – LMFAO 
+
+We can contextualize Shots as a song advocating for collective action; taking another shot and turning up. But other songs can transcend sound, climb Maslow’s hierarchy of needs, speak to existential issues, and even beget social movements. 
+
+Look back to the antiwar movement of the 60s. Musicians were central actors in developing an international outcry against the war in Vietnam. Bob Dylan sang of the “masters of war” and illustrated the destruction they wrought. He created images of greedy ruling class that emanated within the body politic. 
+
+Music in and of itself is an extremely moving phenomenon. There are many questions that we can ask that are external to the music itself? Music is not only a sonic phenomenon but a social one as well. There is a culture of music in which there are existing social structures, modes of communicating, and even discourse around the constructions of genre. 
+
+We can ask many questions, but only a few we can quantify (at the moment). As of today, I am unaware of measuring the impact of A&R companies have in defining [what constitutes a country song or a rap song](https://www.billboard.com/articles/business/8506428/lil-nas-x-old-town-road-splits-country-music-industry-opinion-genre-streaming-age). But what I can do is utilize sources of data that are available today. 
+
+In light of my interest in both music and data science I have worked to create tools to help solve some of the more fundamental data access issues that many scientists have faced. These being accessing lyrics of songs, and Billboard top charts in an analysis ready format in the format of the R packages genius and bbcharts. In with the aid of spotifyr, many common tasks much of the burden of acquiring adequate data have been streamlined. 
+
+spotifyr enables researchers to analyze audio features of a song. genius provides tools acquiring the lyrics. And bbcharts supplies a consistent rating of popular music across many genres for more than a half century. 
+
+This article is intended to demonstrate the way in which these packages can be used together. The article works through the creation of three binary classifications models based on: 1) audio features, 2) lyrics, and 3) an ensemble model. These models are intended to demonstrate a realistic application of developing a genre classification model. The case study compares country and rock music as defined by Billboard.
+
+A number of R packages are used throughout. I will provide brief descriptions of function but will not focus heavily on them. In addition to the aforementioned packages, other packages used are:
+
+*	[`tidyverse`](https://www.tidyverse.org/) and its respective packages
+  *	See [R for Data Science](https://r4ds.had.co.nz)
+* [`tidymodels`](https://github.com/tidymodels/tidymodels) and its respective packages specifically:
+  *	`parsnip`
+  *	`rsample`
+  *	`rescipes` 
+  *	`tidytext`
+  *	`yardstick`
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```

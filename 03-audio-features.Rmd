@@ -1,0 +1,82 @@
+# Audio features — Spotify
+
+Spotify has developed a number of metrics that assess the sonic characteristics of any given songs. These features are described in their [API documentation](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/). The R package [`spotifyr`](https://github.com/charlie86/spotifyr) provides a great interface to access these features.
+
+In order to use spotifyr, you must have API credentials. See the [README](https://github.com/charlie86/spotifyr) for more instructions. Below I reference an `.Renviron`file I created that hosts my Spotify API credentials.
+
+```{r}
+library(spotifyr)
+
+access_token <- get_spotify_access_token(
+  client_id = Sys.getenv("SPOTIFY_CLIENT_ID"),
+  client_secret = Sys.getenv("SPOTIFY_CLIENT_SECRET")
+)
+```
+
+
+One current limitation of the API is that it requires a song's identification number to retrieve audio features. In an effort to simplify the process of retrieving the audio features for each song, I created a function that we can use with `map()` inside of a `mutate()` call. Note that this is a very useful pattern commit to memory. 
+
+
+```{r}
+track_audio_features <- function(artist, title, type = "track") {
+  search_results <- search_spotify(paste(artist, title), type = type)
+  
+  track_audio_feats <- get_track_audio_features(search_results$id[[1]]) %>%
+    dplyr::select(-id, -uri, -track_href, -analysis_url)
+  
+  return(track_audio_feats)
+}
+```
+
+Let's take a moment to undersand what is happening in this function. First, we take the `artist` and `title` arguments and create a search string to provide to `search_spotify()`. This returns a data frame object for the top search results. Next, we take the track ID from the first search result (this works under the assumption that the spotify_search is robust enough to identify the track based on the artist and song name), and is fed to the `get_track_audio_features()` function.
+
+Let's see how this works on it's own by search spotify for a single song. Below I look for the song _Nocturne: Lost Faith_ by the metalcore band _Invent, Animate_.
+
+```{r}
+ia <- search_spotify("Invent, Animate Nocturne: Lost Faith", type = "track")
+ia
+```
+
+Now we can take the ID column and feed it to `get_track_audio_features()`. Note that there will often be more than one search result, hence the subsetting within the function. 
+
+```{r}
+get_track_audio_features(ia$id)
+```
+
+How does the self-defined function perform?
+
+```{r}
+track_audio_features("Invent, Animate", "Nocturne: Lost Faith")
+```
+
+What happens if a song is not found?
+
+```{r eval=FALSE}
+track_audio_features("definiely not", "in spotify")
+```
+
+We are returned a very uninformative error. As we will iterate through our data frame of 600 songs, there is a good chance that at least one track will not be found in Spotify. To cope with this we can use the `possibly()` function from `purrr` which allows functions to fail gracefully. By wrapping our function in `possibly()`, we can specify what is returned in the case of an error.
+
+```{r}
+possible_feats <- possibly(track_audio_features, otherwise = tibble())
+```
+
+Here we define another function `possible_feats()` which, when it encounters an error, will return an empty tibble. The empty tibble is important as we will later have to unnest the data frame.
+
+Now we are prepared to iterate through all of the tracks and fetch the audio features. Note this is not a quick operation creating a great opportunity to pour yourself another cup of coffee.
+
+```{r eval=FALSE}
+chart_analysis <- charts %>%
+  mutate(audio_features = map2(artist, title, possible_feats)) %>%
+  unnest() %>% 
+  as_tibble()
+```
+
+```{r include=FALSE}
+chart_analysis <- read_rds("data/chart_analysis.rds")
+```
+
+```{r}
+glimpse(chart_analysis)
+```
+

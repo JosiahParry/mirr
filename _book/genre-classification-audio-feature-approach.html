@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Genre Classification — Audio feature approach | A tidy approach to music information retrieval</title>
+  <meta name="description" content="Chapter 3 Genre Classification — Audio feature approach | A tidy approach to music information retrieval" />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Genre Classification — Audio feature approach | A tidy approach to music information retrieval" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Genre Classification — Audio feature approach | A tidy approach to music information retrieval" />
+  
+  
+  
+
+<meta name="author" content="Josiah Parry" />
+
+
+<meta name="date" content="2019-08-25" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="audio-features-spotify.html">
+<link rel="next" href="genre-classification-an-nlp-approach.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Tidy MIR</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#setting-context---billboard-top-charts"><i class="fa fa-check"></i><b>1.1</b> Setting Context - Billboard top charts</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="audio-features-spotify.html"><a href="audio-features-spotify.html"><i class="fa fa-check"></i><b>2</b> Audio features — Spotify</a></li>
+<li class="chapter" data-level="3" data-path="genre-classification-audio-feature-approach.html"><a href="genre-classification-audio-feature-approach.html"><i class="fa fa-check"></i><b>3</b> Genre Classification — Audio feature approach</a></li>
+<li class="chapter" data-level="4" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html"><i class="fa fa-check"></i><b>4</b> Genre Classification — An NLP approach</a><ul>
+<li class="chapter" data-level="4.1" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#retrieving-song-lyrics"><i class="fa fa-check"></i><b>4.1</b> Retrieving song lyrics</a></li>
+<li class="chapter" data-level="4.2" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#lyric-preprocessing"><i class="fa fa-check"></i><b>4.2</b> Lyric Preprocessing</a></li>
+<li class="chapter" data-level="4.3" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#topic-modeling"><i class="fa fa-check"></i><b>4.3</b> Topic Modeling</a></li>
+<li class="chapter" data-level="4.4" data-path="genre-classification-an-nlp-approach.html"><a href="genre-classification-an-nlp-approach.html#genre-classification-of-topics"><i class="fa fa-check"></i><b>4.4</b> Genre Classification of Topics</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="genre-classification-ensemble-approach.html"><a href="genre-classification-ensemble-approach.html"><i class="fa fa-check"></i><b>5</b> Genre Classification — Ensemble Approach</a><ul>
+<li class="chapter" data-level="5.1" data-path="genre-classification-ensemble-approach.html"><a href="genre-classification-ensemble-approach.html#case-study"><i class="fa fa-check"></i><b>5.1</b> Case Study</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/josiahparry/genre-classification" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">A tidy approach to music information retrieval</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="genre-classification-audio-feature-approach" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> Genre Classification — Audio feature approach</h1>
+<p>Thanks to the use of <code>bbcharts</code> and <code>spotifyr</code> we were able to identify the most popular rock and country songs from 2016-2018 and retrieve their audio features. We can use these features to create a classification model. In this model, we will use the spotify audio features to predicts if a song is rock &amp; roll or country.</p>
+<p>The following code will utilize <code>tidymodels</code> heavily to pre-process, sample, and train data.</p>
+<p>First, we will remove any unnecessary columns and coerce <code>key</code> and <code>chart</code> to class factor.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidymodels)</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────────────────────────────── tidymodels 0.0.2 ──</code></pre>
+<pre><code>## ✔ broom     0.5.2       ✔ recipes   0.1.5  
+## ✔ dials     0.0.2       ✔ rsample   0.0.4  
+## ✔ infer     0.4.0.1     ✔ yardstick 0.0.3  
+## ✔ parsnip   0.0.2</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──
+## ✖ scales::discard() masks purrr::discard()
+## ✖ dplyr::filter()   masks stats::filter()
+## ✖ recipes::fixed()  masks stringr::fixed()
+## ✖ dplyr::lag()      masks stats::lag()
+## ✖ yardstick::spec() masks readr::spec()
+## ✖ recipes::step()   masks stats::step()</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">clean_chart &lt;-<span class="st"> </span><span class="kw">select</span>(chart_analysis, 
+                      <span class="op">-</span><span class="kw">c</span>(<span class="st">&quot;duration_ms&quot;</span>, <span class="st">&quot;time_signature&quot;</span>, <span class="st">&quot;type&quot;</span>, <span class="st">&quot;mode&quot;</span>,
+                         <span class="st">&quot;rank&quot;</span>, <span class="st">&quot;year&quot;</span>, <span class="st">&quot;artist&quot;</span>, <span class="st">&quot;featured_artist&quot;</span>, <span class="st">&quot;title&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">chart =</span> <span class="kw">as.factor</span>(chart),
+         <span class="dt">key =</span> <span class="kw">as.factor</span>(key))</code></pre>
+<p>Now that we have our data, we need to partition it into a training and test set. We will use <a href="https://tidymodels.github.io/rsample/"><code>rsample</code></a>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># set a seed for reproducibility </span>
+<span class="kw">set.seed</span>(<span class="dv">0</span>)
+
+<span class="co"># partition data</span>
+init_split &lt;-<span class="st"> </span><span class="kw">initial_split</span>(clean_chart, <span class="dt">strata =</span> <span class="st">&quot;chart&quot;</span>)
+
+<span class="co"># extract training set</span>
+train_df &lt;-<span class="st"> </span><span class="kw">training</span>(init_split)
+
+<span class="co"># extract testing set</span>
+test_df &lt;-<span class="st"> </span><span class="kw">testing</span>(init_split)</code></pre>
+<p>Next, we specify the recipe that we want to use using the <a href="https://tidymodels.github.io/recipes/"><code>recipes</code></a> package. Think of the recipe as the “description of what steps should be applied” to the data. In this chunk, we specify the formula and the training data in <code>recipe()</code>. Following that, we specify two preprocessing steps: center and scaling (standardizing) our numeric variables. Last, we <code>prep()</code> the recipe for training.</p>
+<pre class="sourceCode r"><code class="sourceCode r">chart_rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(chart <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_df)  <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">step_center</span>(<span class="kw">all_numeric</span>()) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">step_scale</span>(<span class="kw">all_numeric</span>()) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">prep</span>()</code></pre>
+<p>We apply the recipe to the training and testing data using <code>bake()</code>. The first argument is the recipe object which provides the plan for processing the data provided in the second argument, <code>new_data</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># apply pre-processing to create tibbles ready for modeling</span>
+baked_train &lt;-<span class="st"> </span><span class="kw">bake</span>(chart_rec, train_df)
+baked_test &lt;-<span class="st"> </span><span class="kw">bake</span>(chart_rec, test_df)</code></pre>
+<p>Now that the training and testing sets have been created, we can continue with creating the model. In this example we will create a random forest model from the <a href="https://github.com/imbs-hl/ranger"><code>ranger</code></a> package. This will be done with <a href="https://tidymodels.github.io/parsnip/"><code>parsnip</code></a>.</p>
+<p>parsnip is another package from the tidymodels ecosystem that creates a single interface for models in R. In the code chunk below we:</p>
+<ul>
+<li><em>specify</em> our model as a random forest: <code>rand_forest()</code></li>
+<li>identify which package will be used to create the model: <code>set_engine()</code></li>
+<li>define the model specification using the formula interface: <code>fit()</code></li>
+</ul>
+<pre class="sourceCode r"><code class="sourceCode r">audio_classifier &lt;-<span class="st"> </span><span class="kw">rand_forest</span>(<span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;ranger&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">fit</span>(chart <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> baked_train)
+
+audio_classifier</code></pre>
+<pre><code>## parsnip model object
+## 
+## Ranger result
+## 
+## Call:
+##  ranger::ranger(formula = formula, data = data, num.threads = 1,      verbose = FALSE, seed = sample.int(10^5, 1), probability = TRUE) 
+## 
+## Type:                             Probability estimation 
+## Number of trees:                  500 
+## Sample size:                      448 
+## Number of independent variables:  10 
+## Mtry:                             3 
+## Target node size:                 10 
+## Variable importance mode:         none 
+## Splitrule:                        gini 
+## OOB prediction error (Brier s.):  0.149174</code></pre>
+<p>Now that the model has been fit, we can validate it’s performance on the testing set <code>baked_test</code>. This follows the procedure used in Edgar Ruiz’s <a href="https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/">A Gentle Introduction to tidymodels</a>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">ranger_estimates &lt;-<span class="st"> </span><span class="kw">predict</span>(audio_classifier, baked_test) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">bind_cols</span>(baked_test) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">metrics</span>(<span class="dt">truth =</span> chart, <span class="dt">estimate =</span> .pred_class)
+
+ranger_estimates</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy binary         0.791
+## 2 kap      binary         0.581</code></pre>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="audio-features-spotify.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="genre-classification-an-nlp-approach.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["mirr.pdf", "mirr.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

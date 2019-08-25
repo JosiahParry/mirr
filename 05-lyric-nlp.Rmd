@@ -1,0 +1,192 @@
+# Genre Classification — An NLP approach
+
+There may be marked differences between the musical features of country and rock songs, but to utilize audio features by themself would ignore another important aspect of music: the lyrics. Lyrics contain information that the audio features may not. Lyrics may betray the feeling that the sound may portray. We can use natural language processing (NLP) techniques on the song lyrics to quantify song lyrics. This will enable us to identify the sentiment of a song based on it's lyrics alongside of the mood that is set by its tone. In addition we are able to identify clusters of related words, as we will later see. All of these techniques can be used to distinguish songs, artists, and genres from one and another.
+
+
+The following will outline a process for creating clusters of related words and using them as a basis for a lyric based genre classification model. 
+
+
+To do this we will use three additional packages:
+
+* [`genius`](https://github.com/josiahparry/genius): acquiring song lyrics 
+* [`tidytext`](http://github.com/juliasilge/tidytext): text mining with tidy tools
+* `topicmodels`: package containing R implementations of topic models
+
+In order to best understand the following code I recommend reading [Tidy Text Mining](https://www.tidytextmining.com/) by Julia Silge and David Robinson. 
+
+
+From here we frame the issue of genre classification as one of language rather than strict musical features. In creating this model we are attempting to see if there are linguistic differences between the lyrics of rock and country songs that can be captured, quantified, and classified using NLP and predictive modeling.
+
+The steps that we will take to create this classification model are roughly as follows: 
+
+* Retrieve song lyrics
+* Tokenization
+* Removal of stop words 
+* Word stemming
+* Create a document term matrix
+* Create an LDA topic model
+* Calculate LDA topic probabilities
+* Create a model using class probabilities as features
+
+Latent Dirichlet Allocation (LDA) is an unsupervised classification model that uses term-frequency (tf) of a document as input foollowing a [bag of words approach](https://medium.com/greyatom/an-introduction-to-bag-of-words-in-nlp-ac967d43b428). To create this LDA model, We first need to calculate the term-frequency of our documents (songs). And to do that, we need to process the song lyrics by tokenizing, removing stop-words, and stemming. 
+
+But we can't get ahead of ourselves. We need the lyrics first.
+
+## Retrieving song lyrics
+
+We will use `add_genius()` with the charts table to get the song lyrics for each song. Below we are specifying the columns that contain the name of the artist and tracks respectively. The `type` argument tells genius whether it will be fetching lyrics for a song or an album. Here we specify we are interested in `"lyrics"`.
+
+This is can be rather time consuming. So maybe go for a walk around the block. Make some tea. Have a moment to yourself.
+
+```{r eval=FALSE}
+library(genius)
+charts_lyrics <- add_genius(charts, artist, title, type = "lyrics")
+```
+```{r, echo=FALSE}
+library(genius)
+charts_lyrics <- read_csv("data/charts_lyrics.csv")
+```
+
+Now that we have charts and their lyric, let's see if there were any songs that were missed by `add_genius()`.
+
+```{r}
+anti_join(charts, charts_lyrics %>% 
+  count(year, artist, title)) %>% 
+  distinct(artist, title)
+```
+
+There looks to be some inconsistencies in naming. We can either manually fix these, or omit them. For this case, I will omit them (as fixing them would invariable mean making a GitHub issue; if you want to tackle it, please do!).
+
+## Lyric Preprocessing
+
+To use song lyrics in a model, we need to quantify them in some manner. NLP allows us to add quantitative structure to inherently unstructured text data. We will follow the tidy text mining approach outlined in [Tidy Text Mining in R](https://www.tidytextmining.com/).
+
+We will impose structure on song lyrics by tokenizing words and estimating document topics (groups of related words).
+
+The code below takes the `charts_lyrics` data frame and deduplicates the songs, then splits thee `line` column into unigrams. Next, [stop words](https://www.tidytextmining.com/tidytext.html#tidyausten) are removed. Finally, unigrams are stemmed using `wordStem()` from the `SnowballC` package (for more on word stemming visit [here](https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html)).
+
+
+```{r}
+library(tidytext)
+
+# create unigrams
+lyric_unigrams <- charts_lyrics %>% 
+  # if a song appears more than once, keep only one observation
+  distinct(artist, title, line, .keep_all = TRUE) %>% 
+  # create unigrams
+  unnest_tokens(word, lyric) %>% 
+  # remove stop words
+  anti_join(get_stopwords()) %>% 
+  # stem each word
+  mutate(word = SnowballC::wordStem(word)) 
+
+lyric_unigrams 
+```
+
+We're almost there. We want to create a LDA model, but LDA models are based on term-frequency. At this moment, we only have terms. Now we need to count the number of times each word occurs in each document (song). 
+
+To accomplish this we will `count()` by each unique combination of song and word. Below we create a common identifier as a combination of the artist name and title, then count the number of times each word occurs in the song.
+
+
+```{r}
+# create word counts and an id column to simplify counting for me
+lyric_counts <- lyric_unigrams %>%
+  mutate(id = glue::glue("{artist}....{title}")) %>% 
+  count(id, word, sort = TRUE)
+
+lyric_counts
+```
+
+Now these counts can be cast into a `DocumentTermMatrix` using `tidytext::cast_dtm()`. A document term matrix takes the structure of one document per row and one column per term. This is important when we are thinking about the models that we will be creating. 
+
+For our model, we want to know the genre of each song. This means there needs to be only one row per song rather than a row per song and word pairing as is the case with our tidy `lyric_counts` object. 
+
+
+```{r}
+lyric_dtm <- lyric_counts %>% 
+  cast_dtm(id, word, n)
+
+lyric_dtm
+```
+
+Notice how the term weighting is done with term-frequency (tf)? This is ideal as LDA requires term-frequency.
+
+## Topic Modeling 
+
+Now that we have our `DocumentTermMatrix` we can create our LDA model. We will use the `LDA()` function from `topicmodels` to do this. LDA will createw as many topics as specified. Much like a KNN model, we can specify `k` clusters. In this case we will use 5.
+
+
+```{r}
+library(topicmodels)
+
+lda_5 <- LDA(lyric_dtm, k = 5, control = list(seed = 0))
+
+lda_5
+```
+
+Now that the model has been fit, we can use it to calculate the posterior probabilities for each document's membership to the k classes. `posterior()` creates a `list` object with two matrices. The first matrix contains the `terms` that were used to create the model. The second matrix contains the `topics` probability of each document. We will extract the topic probabilities and coerce the matrix into a `tibble` so we can join it back on to the original charts table.
+
+
+```{r}
+# calculate the posterior probabilities for each document's classificaiton
+lda_inf <- posterior(lda_5, lyric_dtm)
+
+# extract document class probabilities 
+chart_lda <- lda_inf[[2]] %>% 
+  as_tibble(rownames = "id")
+
+chart_lda
+```
+
+To join back onto the original charts data we need to recreate the `id` column in the `charts` tibble. We then join only the unique songs to avoid any duplication and then clean the column headers. 
+
+```{r}
+# join back on to charts to get the genre 
+chart_topics <- charts %>% 
+  mutate(id = glue::glue("{artist}....{title}")) %>% 
+  distinct(chart, id) %>% 
+  right_join(chart_lda) %>% 
+  janitor::clean_names()
+
+head(chart_topics)
+```
+
+From here we now have a dataset that can be utilized for creating a genre classification model. 
+
+## Genre Classification of Topics
+
+Below we follow the same steps as were done for song feature classfications. The only differences here are that we are specifying the formula of the recipe as `chart ~ x1 + x2 + x3 + x4 + x5`, and are using `randomForest` rather than `ranger` .
+
+```{r}
+#------------------------------- pre-processing -------------------------------#
+set.seed(0)
+init_split <- initial_split(chart_topics, strata = "chart")
+train_df <- training(init_split)
+test_df <- testing(init_split)
+
+# create recipe
+chart_rec <- recipe(chart ~ x1 + x2 + x3 + x4 + x5, data = train_df) %>% 
+  prep()
+
+# bake the training and testing to have clean dfs
+baked_train <- bake(chart_rec, train_df)
+baked_test <- bake(chart_rec, test_df)
+
+
+#--------------------------------- model fit ----------------------------------#
+
+rf_fit <- rand_forest(mode = "classification") %>%
+  set_engine("randomForest") %>%
+  fit(chart ~ ., data = baked_train)
+
+lyric_classifier <- rf_fit
+
+#------------------------------ model evaluation ------------------------------#
+rf_estimates <- predict(rf_fit, baked_test) %>%
+  bind_cols(baked_test) %>%
+  yardstick::metrics(truth = chart, estimate = .pred_class)
+
+rf_estimates
+```
+
+This is not a very good model. But what happens if we combine it with the audio feature model?

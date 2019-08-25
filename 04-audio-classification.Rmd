@@ -1,0 +1,82 @@
+# Genre Classification — Audio feature approach
+
+Thanks to the use of `bbcharts` and `spotifyr` we were able to identify the most popular rock and country songs from 2016-2018 and retrieve their audio features. We can use these features to create a classification model. In this model, we will use the spotify audio features to predicts if a song is rock & roll or country. 
+
+The following code will utilize `tidymodels` heavily to pre-process, sample, and train data. 
+
+First, we will remove any unnecessary columns and coerce `key` and `chart` to class factor.
+
+```{r}
+library(tidymodels)
+
+clean_chart <- select(chart_analysis, 
+                      -c("duration_ms", "time_signature", "type", "mode",
+                         "rank", "year", "artist", "featured_artist", "title")) %>%
+  mutate(chart = as.factor(chart),
+         key = as.factor(key))
+
+```
+
+
+Now that we have our data, we need to partition it into a training and test set. We will use [`rsample`](https://tidymodels.github.io/rsample/). 
+
+```{r}
+# set a seed for reproducibility 
+set.seed(0)
+
+# partition data
+init_split <- initial_split(clean_chart, strata = "chart")
+
+# extract training set
+train_df <- training(init_split)
+
+# extract testing set
+test_df <- testing(init_split)
+```
+
+
+Next, we specify the recipe that we want to use using the [`recipes`](https://tidymodels.github.io/recipes/) package. Think of the recipe as the "description of what steps should be applied" to the data. In this chunk, we specify the formula and the training data in `recipe()`. Following that, we specify two preprocessing steps: center and scaling (standardizing) our numeric variables. Last, we `prep()` the recipe for training.
+
+
+```{r}
+chart_rec <- recipe(chart ~ ., data = train_df)  %>%
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) %>%
+  prep()
+```
+
+
+We apply the recipe to the training and testing data using `bake()`. The first argument is the recipe object which provides the plan for processing the data provided in the second argument, `new_data`.
+
+```{r}
+# apply pre-processing to create tibbles ready for modeling
+baked_train <- bake(chart_rec, train_df)
+baked_test <- bake(chart_rec, test_df)
+```
+
+Now that the training and testing sets have been created, we can continue with creating the model. In this example we will create a random forest model from the [`ranger`](https://github.com/imbs-hl/ranger) package. This will be done with [`parsnip`](https://tidymodels.github.io/parsnip/).
+
+parsnip is another package from the tidymodels ecosystem that creates a single interface for models in R. In the code chunk below we:
+
+  * _specify_ our model as a random forest: `rand_forest()`
+  * identify which package will be used to create the model: `set_engine()`
+  * define the model specification using the formula interface: `fit()`
+
+```{r}
+audio_classifier <- rand_forest(mode = "classification") %>%
+  set_engine("ranger") %>%
+  fit(chart ~ ., data = baked_train)
+
+audio_classifier
+```
+
+Now that the model has been fit, we can validate it's performance on the testing set `baked_test`. This follows the procedure used in Edgar Ruiz's [A Gentle Introduction to tidymodels](https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/).
+
+
+```{r}
+ranger_estimates <- predict(audio_classifier, baked_test) %>%
+  bind_cols(baked_test) %>%
+  metrics(truth = chart, estimate = .pred_class)
+
+ranger_estimates
+```
