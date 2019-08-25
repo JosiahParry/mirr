@@ -24,7 +24,7 @@ Music in and of itself is an extremely moving phenomenon. There are many questio
 
 We can ask many questions, but only a few we can quantify (at the moment). As of today, I am unaware of measuring the impact of A&R companies have in defining [what constitutes a country song or a rap song](https://www.billboard.com/articles/business/8506428/lil-nas-x-old-town-road-splits-country-music-industry-opinion-genre-streaming-age). But what I can do is utilize sources of data that are available today. 
 
-In light of my interest in both music and data science I have worked to create tools to help solve some of the more fundamental data access issues that many scientists have faced. These being accessing lyrics of songs, and Billboard top charts in an analysis ready format in the format of the R packages genius and bbcharts. In with the aid of spotifyr, many common tasks much of the burden of acquiring adequate data have been streamlined. 
+In light of my interest in both music and data science I have worked to create tools to help solve some of the more fundamental data access issues that many scientists have faced. These being accessing lyrics of songs and Billboard charts in an analysis ready format in the format of the R packages genius and bbcharts. Much of the burden of acquiring adequate data have been streamlined with these packages and spotifyr.
 
 spotifyr enables researchers to analyze audio features of a song. genius provides tools acquiring the lyrics. And bbcharts supplies a consistent rating of popular music across many genres for more than a half century. 
 
