@@ -42,7 +42,7 @@ This is can be rather time consuming. So maybe go for a walk around the block. M
 library(genius)
 charts_lyrics <- add_genius(charts, artist, title, type = "lyrics")
 ```
-```{r, echo=FALSE}
+```{r include=FALSE}
 library(genius)
 charts_lyrics <- read_csv("data/charts_lyrics.csv")
 ```

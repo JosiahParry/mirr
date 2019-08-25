@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval</title>
-  <meta name="description" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  <title>Chapter 4 Genre Classification — An NLP approach | Music Genre Classification</title>
+  <meta name="description" content="Chapter 4 Genre Classification — An NLP approach | Music Genre Classification" />
   <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  <meta property="og:title" content="Chapter 4 Genre Classification — An NLP approach | Music Genre Classification" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Genre Classification — An NLP approach | A tidy approach to music information retrieval" />
+  <meta name="twitter:title" content="Chapter 4 Genre Classification — An NLP approach | Music Genre Classification" />
   
   
   
@@ -155,7 +155,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">A tidy approach to music information retrieval</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Music Genre Classification</a>
           </h1>
         </div>
 
@@ -194,18 +194,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>This is can be rather time consuming. So maybe go for a walk around the block. Make some tea. Have a moment to yourself.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(genius)
 charts_lyrics &lt;-<span class="st"> </span><span class="kw">add_genius</span>(charts, artist, title, <span class="dt">type =</span> <span class="st">&quot;lyrics&quot;</span>)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   rank = col_double(),
-##   year = col_double(),
-##   chart = col_character(),
-##   artist = col_character(),
-##   featured_artist = col_character(),
-##   title = col_character(),
-##   track_title = col_character(),
-##   line = col_double(),
-##   lyric = col_character()
-## )</code></pre>
 <p>Now that we have charts and their lyric, let’s see if there were any songs that were missed by <code>add_genius()</code>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anti_join</span>(charts, charts_lyrics <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">count</span>(year, artist, title)) <span class="op">%&gt;%</span><span class="st"> </span>
