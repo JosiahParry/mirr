@@ -1,4 +1,4 @@
-## Setting Context - Billboard top charts
+# Setting Context - Billboard top charts
 
 Billboard magazine first started publishing music popularity charts in 1936. Billbaord studies multiple segments of listenership such as radio plays, online streams, digital and physical purchases. Through these efforts it has since established itself as an industry standard. Their charts have been used in numerous reseaarch projects aand analyses. Until recently, there is has been no one effective way of accessing this data in a format that is ready for analysis. 
 

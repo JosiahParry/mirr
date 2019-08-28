@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Music Genre Classification</title>
-  <meta name="description" content="Music Genre Classification" />
+  <title>Chapter 2 Setting Context - Billboard top charts | Music Genre Classification</title>
+  <meta name="description" content="Chapter 2 Setting Context - Billboard top charts | Music Genre Classification" />
   <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Music Genre Classification" />
+  <meta property="og:title" content="Chapter 2 Setting Context - Billboard top charts | Music Genre Classification" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Music Genre Classification" />
+  <meta name="twitter:title" content="Chapter 2 Setting Context - Billboard top charts | Music Genre Classification" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="setting-context-billboard-top-charts.html">
+<link rel="prev" href="index.html">
+<link rel="next" href="audio-features-spotify.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -162,34 +162,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Music Genre Classification</h1>
-<p class="author"><em>Josiah Parry</em></p>
-<p class="date"><em>2019-08-28</em></p>
-</div>
-<div id="introduction" class="section level1">
-<h1><span class="header-section-number">Chapter 1</span> Introduction</h1>
-<p>When I listen to music there are two aspects that I focus on: the music and the lyrics. By “music” I am referring to the sonic features of a song: tonality, rhythm, tempo, key, the affect of the vocalist’s voice. In my practice of listening to music, lyrics are a separate entity than the vocals. Lyrics are a way of listening to prose. Lyrics can carry a message—a rallying cry, a call to action, or an expression of one’s innermost sentiments. Take Shots by LMFAO for example:</p>
-<p>Shots, shots, shots, shots, shots, shots – LMFAO</p>
-<p>We can contextualize Shots as a song advocating for collective action; taking another shot and turning up. But other songs can transcend sound, climb Maslow’s hierarchy of needs, speak to existential issues, and even beget social movements.</p>
-<p>Look back to the antiwar movement of the 60s. Musicians were central actors in developing an international outcry against the war in Vietnam. Bob Dylan sang of the “masters of war” and illustrated the destruction they wrought. He created images of a greedy ruling class that emanated within the body politic.</p>
-<p>Music in and of itself is an extremely moving phenomenon. There are many questions that we can ask that are external to the music itself. Music is not only a sonic phenomenon but a social one as well. There is a culture of music in which can be found existing social structures, modes of communication, and even a discourse around the construction of genre.</p>
-<p>We can ask many questions, but only a few we can quantify (at the moment). As of today, I am unaware of methods for measuring the impact of A&amp;R companies have in defining <a href="https://www.billboard.com/articles/business/8506428/lil-nas-x-old-town-road-splits-country-music-industry-opinion-genre-streaming-age">what constitutes a country song or a rap song</a>. But what I can do is utilize sources of data that are available today.</p>
-<p>In light of my interest in both music and data science I have worked to create tools to help solve some of the more fundamental data access issues that many scientists have faced. Specifically access to song lyrics and Billboard charts in an analysis ready format in through the R packages <a href="https://github.com/josiahparry/genius"><code>genius</code></a> and <a href="https://github.com/josiahparry/bbcharts"><code>bbcharts</code></a> respectively. Another useful tool is <a href="https://github.com/charlie86/spotifyr/"><code>spotifyr</code></a>. Spotify has developed a number of features used to quantify the the audio characteristics of a song which can be accessed via the API wrapper, spotifyr. These packages together have streamlined much of the data acquisition process.</p>
-<p>This article is intended to demonstrate the way in which these packages can be used together. The article works through the creation of three binary classifications models based on: 1) audio features, 2) lyrics, and 3) an ensemble model. These models are intended to demonstrate a realistic application of developing a genre classification model. The case study compares country and rock music as defined by Billboard.</p>
-<p>A number of R packages are used throughout. I will provide brief descriptions of function but will not focus heavily on them. In addition to the aforementioned packages, other packages used are:</p>
-<ul>
-<li><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> and its respective packages</li>
-<li>See <a href="https://r4ds.had.co.nz">R for Data Science</a></li>
-<li><a href="https://github.com/tidymodels/tidymodels"><code>tidymodels</code></a> and its respective packages specifically:
-<ul>
-<li><code>parsnip</code></li>
-<li><code>rsample</code></li>
-<li><code>rescipes</code></li>
-<li><code>tidytext</code></li>
-<li><code>yardstick</code></li>
-</ul></li>
-</ul>
+<div id="setting-context---billboard-top-charts" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Setting Context - Billboard top charts</h1>
+<p>Billboard magazine first started publishing music popularity charts in 1936. Billbaord studies multiple segments of listenership such as radio plays, online streams, digital and physical purchases. Through these efforts it has since established itself as an industry standard. Their charts have been used in numerous reseaarch projects aand analyses. Until recently, there is has been no one effective way of accessing this data in a format that is ready for analysis.</p>
+<p><code>bbcharts</code> was created to simplify the process of retrieving chart rankings. Through bbcharts, users now have access to 321 different charts that are hosted on Billboard.com. There a number of weekly and annual charts. bbcharts lists these in <code>bbcharts::chart_table</code> and <code>bbcharts::ye_chart_table</code> respectively (note that <code>ye</code> stands for “year end”). For an overview of the functionality visit the <a href="https://github.com/JosiahParry/bbcharts">GitHub repo</a>.</p>
+<p>For this case study we will be comparing rock and country songs. In order to create a model that classifies rock and country, we will need a dataset consisting of rock and country songs that can be used in our training. For this, we will look at the top rock and country songs of the past three years using the year end Billboard charts.</p>
+<p>To create the dataset we will need to utilize the two charts: <code>&quot;hot-country-songs&quot;</code> and <code>&quot;hot-rock-songs&quot;</code>. One approach to do this would be to manually fetch these datasets using <code>year_end_bb(&quot;chart-name&quot;, year)</code> and binding them together. However, we have the power of the tidyverse at our fingertips and it would be a shame not to use it!</p>
+<p>The process that we will use will be to:</p>
+<ol style="list-style-type: decimal">
+<li>Create a tibble of chart and year pairs</li>
+<li>Create a new list column with each pair’s chart</li>
+<li>Unnest</li>
+</ol>
+<p>To create a tibble with all unique pairs, we will use <code>tidyr::crossing()</code>. We will provide two vectors. One containing the name of the charts to be used and a second with the years of interest. These values will later be fed to <code>year_end_bb()</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
+
+chart_grid &lt;-<span class="st"> </span><span class="kw">crossing</span>(
+  <span class="dt">chart =</span> <span class="kw">c</span>(<span class="st">&quot;hot-country-songs&quot;</span>, <span class="st">&quot;hot-rock-songs&quot;</span>),
+  <span class="dt">year =</span> <span class="dv">2016</span><span class="op">:</span><span class="dv">2018</span>
+  )
+
+chart_grid</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   chart              year
+##   &lt;chr&gt;             &lt;int&gt;
+## 1 hot-country-songs  2016
+## 2 hot-country-songs  2017
+## 3 hot-country-songs  2018
+## 4 hot-rock-songs     2016
+## 5 hot-rock-songs     2017
+## 6 hot-rock-songs     2018</code></pre>
+<p>Next, we will create a new column called <code>chart_ranks</code> using a combination of <code>mutate()</code> and <code>map2()</code>. <code>mutate()</code> allows you to create and modify columns in a data frame. <code>map2()</code> allows you to iterate over two arguments simultaneously and pass these to another function.</p>
+<p>The below code will iterate over these pairs and store the output of <code>year_end_bb()</code> in the new column <code>chart_ranks</code>. As we only need what is contained in that <code>chart_ranks</code>, we will select it and <code>unnest()</code> the tibbles.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(bbcharts)
+
+charts &lt;-<span class="st"> </span>chart_grid <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">chart_ranks =</span> <span class="kw">map2</span>(<span class="dt">.x =</span> chart, <span class="dt">.y =</span> year, year_end_bb)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(chart_ranks) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>()
+
+charts</code></pre>
+<pre><code>## # A tibble: 600 x 6
+##     rank  year chart        artist          featured_artist title          
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;          
+##  1     1  2016 Hot Country… Florida Georgi… &lt;NA&gt;            H.O.L.Y.       
+##  2     2  2016 Hot Country… Thomas Rhett    &lt;NA&gt;            Die A Happy Man
+##  3     3  2016 Hot Country… Tim McGraw      &lt;NA&gt;            Humble And Kind
+##  4     4  2016 Hot Country… Dierks Bentley  &lt;NA&gt;            Somewhere On A…
+##  5     5  2016 Hot Country… Jon Pardi       &lt;NA&gt;            Head Over Boots
+##  6     6  2016 Hot Country… Cole Swindell   &lt;NA&gt;            You Should Be …
+##  7     7  2016 Hot Country… Sam Hunt        &lt;NA&gt;            Break Up In A …
+##  8     8  2016 Hot Country… Maren Morris    &lt;NA&gt;            My Church      
+##  9     9  2016 Hot Country… Blake Shelton   &lt;NA&gt;            Came Here To F…
+## 10    10  2016 Hot Country… Kelsea Balleri… &lt;NA&gt;            Peter Pan      
+## # … with 590 more rows</code></pre>
+<p>Here we have a table of 600 tracks. This tibble will serve as the source of our data. We will need to collect the audio information (from Spotify) and the song lyrics in later steps.</p>
+<p>Before continuing I recommend exploring the <code>charts</code> data frame and try and understand how it was created. Run the above code funtion by function and line by line. See what changes take place after each and every step.</p>
 
 </div>
             </section>
@@ -197,8 +225,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
-
-<a href="setting-context-billboard-top-charts.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="audio-features-spotify.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
