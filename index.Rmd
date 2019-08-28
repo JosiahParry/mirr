@@ -1,5 +1,6 @@
 --- 
-title: "Music Genre Classification"
+title: "Tidy Music Information Retrieval (MIR)"
+subtitle: "Music genre classification: a case study of genius, spotifyr, and bbcharts"
 author: "Josiah Parry"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
